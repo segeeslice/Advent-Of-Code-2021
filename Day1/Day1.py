@@ -15,7 +15,7 @@ import sys
 HEIGHT_DATA_PATH = './Day1Data.yaml'
 
 def load_yaml_data(data_path):
-    with open(HEIGHT_DATA_PATH, 'r') as f:
+    with open(data_path, 'r') as f:
         return yaml.safe_load(f)
 
 def get_increases_and_decreases(height_data):
