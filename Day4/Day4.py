@@ -10,6 +10,7 @@ Part 1: 51776
 Part 2: ?
 '''
 import pprint
+import copy
 pp = pprint.PrettyPrinter(indent = 2)
 
 # Formatted weirdly, can't be a YAML...
@@ -89,11 +90,29 @@ def assign_called(num, bingo_board):
     return bingo_board
 
 def get_first_winning_board_info(calling_order, bingo_boards):
+    copied_boards = copy.deepcopy(bingo_boards)
+
     for num in calling_order:
-        for bingo_board in bingo_boards:
+        for bingo_board in copied_boards:
             assign_called(num, bingo_board)
             if bingo_board_has_win(bingo_board):
                 return { "board": bingo_board, "last_number_called": num }
+
+    return None
+
+def get_last_winning_board_info(calling_order, bingo_boards):
+    copied_boards = copy.deepcopy(bingo_boards)
+
+    for num in calling_order:
+        for bingo_board in copied_boards:
+            assign_called(num, bingo_board)
+            if bingo_board_has_win(bingo_board):
+                if len(copied_boards) == 1:
+                    return { "board": bingo_board, "last_number_called": num }
+                else:
+                    copied_boards.remove(bingo_board)
+
+    return None
 
 def get_unmarked_sum(bingo_board):
     sum_val = 0
@@ -119,6 +138,16 @@ def main ():
     final_score = unmarked_sum * last_number_called
 
     print("Part 1:")
+    print("Score: " + str(final_score))
+
+    last_winning_board_info = get_last_winning_board_info(calling_order, bingo_boards)
+    last_winning_board = last_winning_board_info["board"]
+    last_number_called = last_winning_board_info["last_number_called"]
+
+    unmarked_sum = get_unmarked_sum(last_winning_board)
+    final_score = unmarked_sum * last_number_called
+
+    print("\nPart 2:")
     print("Score: " + str(final_score))
 
 if __name__ == '__main__':
