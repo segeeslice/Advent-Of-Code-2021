@@ -6,7 +6,7 @@ pip install numpy
 
 My solutions:
 Part 1: 5373
-Part 2: ?
+Part 2: 21514
 '''
 import pprint
 import copy
@@ -71,11 +71,19 @@ def is_horizontal(vent_entry):
 def is_vertical(vent_entry):
     return vent_entry["from"][0] == vent_entry["to"][0]
 
+def is_diagonal(vent_entry):
+    x_diff = vent_entry["from"][0] - vent_entry["to"][0]
+    y_diff = vent_entry["from"][1] - vent_entry["to"][1]
+    return abs(x_diff) == abs(y_diff)
+
 def get_occurrence_matrix(vent_data):
     x_size, y_size = get_max_x_y_sizes(vent_data)
     arr = np.zeros((x_size, y_size))
 
     for v in vent_data:
+        start_y = min(v["from"][1], v["to"][1])
+        end_y = max(v["from"][1], v["to"][1])
+
         if is_horizontal(v):
             y = v["from"][1]
             start_x = min(v["from"][0], v["to"][0])
@@ -83,11 +91,24 @@ def get_occurrence_matrix(vent_data):
             for x in range(start_x, end_x+1):
                 arr[x][y] = arr[x][y] + 1
 
-        if is_vertical(v):
+        elif is_vertical(v):
             x = v["from"][0]
             start_y = min(v["from"][1], v["to"][1])
             end_y = max(v["from"][1], v["to"][1])
             for y in range(start_y, end_y+1):
+                arr[x][y] += 1
+
+        elif is_diagonal(v):
+            start_x = min(v["from"][0], v["to"][0])
+            end_x = max(v["from"][0], v["to"][0])
+
+            start_y = v["from"][1] if v["from"][0] == start_x else v["to"][1]
+            end_y = v["from"][1] if v["from"][0] == end_x else v["to"][1]
+
+            x_range = range(start_x, end_x+1)
+            y_range = range(start_y, end_y+1) if (end_y - start_y) > 0 else range(start_y, end_y-1, -1)
+
+            for x, y in zip(x_range, y_range):
                 arr[x][y] += 1
 
     return arr
@@ -102,10 +123,16 @@ def main ():
     vent_data = parse_vent_data(raw_vent_text)
 
     non_diagonal_vent_data = get_non_diagonal_vent_data(vent_data)
+    non_diagonal_occurrence_matrix = get_occurrence_matrix(non_diagonal_vent_data)
+    num_overlapping_lines = get_num_overlapping_lines(non_diagonal_occurrence_matrix)
+
+    print("Part 1:")
+    print("Number of overlapping lines: " + str(num_overlapping_lines))
+
     occurrence_matrix = get_occurrence_matrix(vent_data)
     num_overlapping_lines = get_num_overlapping_lines(occurrence_matrix)
 
-    print("Part 1:")
+    print("\nPart 2:")
     print("Number of overlapping lines: " + str(num_overlapping_lines))
 
 if __name__ == '__main__':
