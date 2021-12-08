@@ -7,7 +7,7 @@ Requirements:
 
 My solutions:
 Part 1: 51776
-Part 2: ?
+Part 2: 16830
 '''
 import pprint
 import copy
@@ -56,8 +56,7 @@ def parse_bingo_boards (raw_bingo_text, line_start = BINGO_BOARD_START):
 
 def bingo_board_has_win(bingo_board):
     return bingo_board_has_vertical_win(bingo_board) or \
-        bingo_board_has_horizontal_win(bingo_board) or \
-        bingo_board_has_diagonal_win(bingo_board)
+        bingo_board_has_horizontal_win(bingo_board)
 
 def bingo_board_has_vertical_win(bingo_board):
     rotated_board = rotate_2d_array(bingo_board)
@@ -103,14 +102,19 @@ def get_first_winning_board_info(calling_order, bingo_boards):
 def get_last_winning_board_info(calling_order, bingo_boards):
     copied_boards = copy.deepcopy(bingo_boards)
 
+    # Loops interact super weirdly if you remove from them mid-loop..
+    remaining_boards = copy.copy(copied_boards)
+
     for num in calling_order:
         for bingo_board in copied_boards:
+            if bingo_board not in remaining_boards: continue
+
             assign_called(num, bingo_board)
             if bingo_board_has_win(bingo_board):
-                if len(copied_boards) == 1:
+                if len(remaining_boards) == 1:
                     return { "board": bingo_board, "last_number_called": num }
                 else:
-                    copied_boards.remove(bingo_board)
+                    remaining_boards.remove(bingo_board)
 
     return None
 
