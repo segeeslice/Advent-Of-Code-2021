@@ -12,7 +12,7 @@ import pprint
 import copy
 pp = pprint.PrettyPrinter(indent = 2)
 
-DIGIT_DATA_PATH = './Day8Data.txt'
+DIGIT_DATA_PATH = './Day8ExampleData.txt'
 
 # == General-use ==
 
@@ -29,7 +29,7 @@ def reverse_dict(dct):
 def count(iterator, condition):
     count_result = 0
     for x in iterator:
-        if is_iterable(x)
+        if is_iterable(x):
             count_result += count(x, condition)
         elif condition(x):
             count_result += 1
@@ -54,12 +54,27 @@ def import_digit_data(data_path):
 
     return digit_data
 
+def digit_is_five(digit, eight_key_ordered):
+    if len(eight_key_ordered) != 7: raise Exception("Bad eight key")
+    if len(digit) != 5: return False
+    five_key_locations = [0, 1, 3, 5, 6]
+    five_key_letters = [eight_key_ordered[i] for i in five_key_locations]
+    return all(digit_letter in five_key_letters for digit_letter in digit)
+
 def get_number_to_digit_key(example_digits):
     key = {}
     key[1] = first(example_digits, lambda x: len(x) == 2)
     key[4] = first(example_digits, lambda x: len(x) == 4)
     key[7] = first(example_digits, lambda x: len(x) == 3)
     key[8] = first(example_digits, lambda x: len(x) == 7)
+
+    # TODO: Need to figure out how to find position of remaining digits
+    top_let = first(key[7], lambda x: x not in key[1])
+    print(top_let)
+
+    if key[8] != None:
+        five_key = first(example_digits, lambda x: digit_is_five(x, key[8]))
+        if five_key != None: key[5] = five_key
 
     return key
 
@@ -86,13 +101,15 @@ def main ():
     all_data = []
     for digit_line in digit_data:
         digit_to_number_key = get_digit_to_number_key(digit_line['example_digits'])
+        print(digit_to_number_key)
         parsed_digits = parse_digits(digit_line['display_digits'], digit_to_number_key)
+        print(parsed_digits)
         all_data.append(parsed_digits)
 
     counted = count_parsed_digits(all_data)
 
-    print("Number of 1's, 4's, 7's, or 8's: ")
-    print(sum(counted[k] for k in counted))
+    # print("Number of 1's, 4's, 7's, or 8's: ")
+    # print(sum(counted[k] for k in counted))
 
 if __name__ == '__main__':
     main()
